@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>About us</title>
+  <link rel="shortcut icon" href="/resources/favicon.ico">
+  <link rel="stylesheet" media="screen" href="//fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic">
+  <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="/stylesheets/header.css" >
+  <link rel="stylesheet" type="text/css" href="/stylesheets/about_us.css" >
+  
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+  <script type="text/javascript" src="/js/header.js"></script>
+</head>
+
+<body>
+  <nav class="navbar navbar-default" role="navigation">
+    <div class="glostick__modal-bg"></div>
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+
+    <div class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+          <div class="navbar-header">
+            <a class="navbar-brand" href="/">
+              <div>
+                <img alt="Brand" src="/resources/world-clock-icon-40.png" />
+                <img alt="Brand" src="/resources/world-clock-logo-small.png" />
+              </div>
+            </a>
+          </div>
+        </li>
+      </ul>
+
+      <ul class="nav navbar-nav navbar-center">
+        <li>
+          <!-- <form class="navbar-form navbar-center" role="search" id="search-form">
+            <div class="form-group">
+              <input type="text" class="form-control" placeholder="Jump to events..." >
+            </div>
+          </form> -->
+          <h3 style="font-weight:400;color:#4e4393;margin-top:13px">About us</h3>
+        </li>
+      </ul>
+
+      <ul class="nav navbar-nav navbar-right">
+        <!-- <li>
+          <div>
+            <a class="user-menu" id="world-clock-user-icon">
+              <div class="user-avatar-container">
+                <img class="user-avatar" src="/resources/invasion.png" />
+              </div>
+            </a>
+          </div>
+        </li> -->
+      </ul>
+    </div>
+
+    <div class="glostick__menu glostick__menu--account">
+    	<a class="glostick__menu__item glostick__menu__item--account-details" href="/edit_profile">
+    		<div class="glostick__user__avatar--container">
+    			<img class="glostick__account-details__avatar" src="/resources/invasion.png">
+    		</div>
+    		<div class="glostick__account-details__name">
+    			display name
+    		</div>
+    		<div class="glostick__account-details__email">
+    			your@email.com
+    		</div>
+    	</a>
+    	<a class="glostick__menu__item glostick__menu__item--settings" href="/edit_profile">Account settings</a>
+      <a class="glostick__menu__item glostick__menu__item--signout" onclick='logout()'>Sign out</a>
+    </div>
+  </nav>
+
+  <div class="page-body">
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12 col-lg-10 col-xs-offset-0 col-lg-offset-1">
+          <section class="card m-b" id="about">
+            <h1 class="text-center">Our Mission</h1>
+            <p class="text-center text-md"><b class="slogan">To do what we were told to do</b></p>
+            <br />
+            <h2 class="text-center">World Clock</h2>
+            <div class="m-x-auto text-justify" style="max-width: 74rem;">
+              <p class="text-md">
+                <strong>World Clock</strong> is a convenient world clock, a time zone converter, and an online meeting scheduler. Within this application, everyone can see the current date and time of different cities/places/locations around the world. We can also compare multiple time zones at once for people who are traveling, in flights, or just calling friends and family abroad, or as the above example, schedule a team meeting for a team whose members are living in different places.
+              </p>
+            </div>
+          </section>
+
+          <section class="card m-b" id="team">
+            <h2 class="text-center no-m-b">Intern Team</h2>
+            <div class="row">
+              <div class="col-xs-12 col-sm-12 col-xl-12">
+                <img class="img-fluid m-b" src="/resources/ce-logo.png" style="width:550px;height:auto;"/>
+              </div>
+            </div>
+            <br />
+            <div class="row">
+              <div class="col-xs-12 col-md-2 col-md-offset-1 m-b-xxl">
+                <img class="img-circle img-fluid m-b" src="/resources/avatar-dan.jpg"/>
+                <h3 class="text-md text-bold text-center no-m-bt">Dan Pham</h3>
+                <p class="text-xxxs m-b-sm text-uppercase text-center">full stack</p>
+              </div>
+              <div class="col-xs-12 col-md-2 m-b-xxl">
+                <img class="img-circle img-fluid m-b" src="/resources/avatar-hai.jpg"/>
+                <h3 class="text-md text-bold text-center no-m-bt">Hai Tran</h3>
+                <p class="text-xxxs m-b-sm text-uppercase text-center">front end</p>
+              </div>
+              <div class="col-xs-12 col-md-2 m-b-xxl">
+                <img class="img-circle img-fluid m-b" src="/resources/avatar-hoang.png"/>
+                <h3 class="text-md text-bold text-center no-m-bt">Hoang Pham</h3>
+                <p class="text-xxxs m-b-sm text-uppercase text-center">back end</p>
+              </div>
+              <div class="col-xs-12 col-md-2 m-b-xxl">
+                <img class="img-circle img-fluid m-b" src="/resources/avatar-nhan.png"/>
+                <h3 class="text-md text-bold text-center no-m-bt">Nhan Nguyen</h3>
+                <p class="text-xxxs m-b-sm text-uppercase text-center">full stack</p>
+              </div>
+              <div class="col-xs-12 col-md-2 m-b-xxl">
+                <img class="img-circle img-fluid m-b" src="/resources/avatar-thinh.jpg"/>
+                <h3 class="text-md text-bold text-center no-m-bt">Thinh Dinh</h3>
+                <p class="text-xxxs m-b-sm text-uppercase text-center">front end</p>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

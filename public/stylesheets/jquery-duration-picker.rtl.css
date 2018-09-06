@@ -1,0 +1,25 @@
+.jdp-input {
+    width: 103px;
+    direction: rtl;
+    border-radius: .28571429rem;
+    padding: 2px 6px 2px 9px;
+    border: 1px solid rgba(34, 36, 38, .15);
+    cursor: text;
+}
+.jdp-input.disabled {
+    color: #AAA;
+    cursor: default;
+}
+.jdp-block{
+    display: inline-block;
+    line-height: 1;
+    text-align: center;
+    padding: 5px 3px;
+}
+.jdp-label {
+    font-size: 70%}
+
+.jdp-input .jdp-block:last-child{
+    border-right: 1px solid #999;
+    width: 43px;
+}

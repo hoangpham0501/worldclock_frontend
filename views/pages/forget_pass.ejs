@@ -1,0 +1,77 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <link rel="shortcut icon" href="/resources/favicon.ico">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Reset Password - WorldClock</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.16.0/jquery.validate.js"></script>
+
+    <link href="stylesheets/login.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="https://netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.min.css" media="screen" rel="stylesheet" type="text/css">
+
+    <script src="/js/forget_pass.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js" type="text/javascript"></script>
+
+    <script src="/js/sweetalert.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/stylesheets/sweetalert.css">
+</head>
+
+<body>
+    <div id="wrap" class="wrap">
+        <h1 class="logo">
+            <a href="https://www.intern-worldclock.herokuapp.com" title="World Clock"></a>
+        </h1>
+        <div class="wrap-inner">
+            <!--Enter email Section-->
+            <div class="section" id="section1">
+                <div class="form form--login">
+                    <h1 class="alpha">Lost password?</h1>
+                    <p>Ohk, don't panic. You can recover it here.</p>
+                    <div>
+                        <form class="form-wrap email-form">
+                            <input id="email" class="inputbox" type="email" name="email" placeholder="Email Address" required/>
+                            <button class="scroll2" data-section="2">Send me the code</button>
+                        </form>
+                    </div>
+                    <hr />
+                    <p>You remember your password? Brilliant! <a class="scroll" href="/login" data-section="2">Login here</a></p>
+                </div>
+            </div>
+            <!--END: Login Section-->
+            <!--Signup Section-->
+            <div class="section" id="section2">
+                <div class="form form--login">
+                    <h1 class="alpha">Enter your recovery code</h1>
+                    <p>A recovery code has been sent to your email</p>
+                    <div>
+                        <form class="form-wrap code-form">
+                            <input id="seccode" class="inputbox" type="text" placeholder="Recovery Code" required/>
+                            <button style="margin-bottom: 1.5rem;" class="scroll2" data-section="3">Authenticate</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <!--END: Signup Section-->
+            <!--Forget Password Section-->
+            <div class="section" id="section3">
+                <div class="form form--login">
+                    <h1 class="alpha">Set your new password</h1>
+                    <div>
+                        <form class="form-wrap pass-form">
+                            <input id="password" class="inputbox" type="password" name="password" placeholder="New Password" required/>
+                            <input id="confirm_password" class="inputbox" type="password" name="confirm_password" placeholder="Confirm New Password" required/>
+                            <button style="margin-bottom: 1.5rem;">Reset Password</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <!--END: Forget Password Section-->
+        </div>
+    </div>
+</body>
+
+</html>

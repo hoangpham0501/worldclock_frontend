@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<link rel="shortcut icon" href="/resources/favicon.ico">
+	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+	<link rel="stylesheet" type="text/css" href="/stylesheets/edit_profile.css">
+	<link rel="stylesheet" type="text/css" href="/stylesheets/header.css">
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+	<script type="text/javascript" src="/js/header.js"></script>
+	<script type="text/javascript" src="/js/edit_profile.js"></script>
+</head>
+<body>
+
+	<nav class="navbar navbar-default" role="navigation">
+		<div class="glostick__modal-bg"></div>
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+		</div>
+
+		<div class="navbar-collapse collapse">
+			<ul class="nav navbar-nav">
+				<li>
+					<div class="navbar-header">
+						<a class="navbar-brand" href="/dashboard">
+							<div>
+								<img alt="Brand" src="/resources/world-clock-icon-40.png" />
+								<img alt="Brand" src="/resources/world-clock-logo-small.png" />
+							</div>
+						</a>
+					</div>
+				</li>
+			</ul>
+
+			<ul class="nav navbar-nav navbar-center">
+				<li>
+          <!-- <form class="navbar-form navbar-center" role="search" id="search-form">
+            <div class="form-group">
+              <input type="text" class="form-control" placeholder="Jump to events..." >
+            </div>
+        </form> -->
+        <h3 style="font-weight:400;color:#4e4393;margin-top:13px">Edit Profile</h3>
+    </li>
+</ul>
+
+<ul class="nav navbar-nav navbar-right">
+	<li>
+		<div>
+			<a class="user-menu" id="world-clock-user-icon">
+				<div class="user-avatar-container">
+					<img class="user-avatar" src="/resources/invasion.png" style="cursor: pointer;" />
+				</div>
+			</a>
+		</div>
+	</li>
+</ul>
+</div>
+
+<div class="glostick__menu glostick__menu--account">
+	<a class="glostick__menu__item glostick__menu__item--account-details" href="#">
+		<div class="glostick__user__avatar--container">
+			<img class="glostick__account-details__avatar" src="/resources/invasion.png">
+		</div>
+		<div class="glostick__account-details__name">
+			Anonymous
+		</div>
+		<div class="glostick__account-details__email">
+			anon@gmail.com
+		</div>
+	</a>
+	<a class="glostick__menu__item glostick__menu__item--settings" href="#">Account settings</a>
+	<a class="glostick__menu__item glostick__menu__item--signout" onclick='logout()' style="cursor: pointer;">Sign out</a>
+</div>
+</nav>
+
+<div class="container" id="info-content">
+	<!-- <h1 style="font-weight:400;color:#4e4393;">Edit Profile</h1> -->
+	<!-- <hr> -->
+	<div>
+
+	</div>
+	<div class="row">
+		<!-- left column -->
+		<div class="col-md-3">
+			<div class="text-center">
+				<img src="/resources/invasion.png" class="avatar img-circle" alt="avatar" width=100 height=100>
+				<h6>We haven't supported changing avatar</h6>
+			</div>
+		</div>
+
+		<!-- edit form column -->
+		<div class="col-md-9 personal-info">
+			<div class="alert alert-info alert-dismissable">
+				<a class="panel-close close" data-dismiss="alert"></a>
+				To change your password, enter a new one to <strong>Password</strong>
+				and <strong>Confirm Password</strong> fields then click <strong>Save Changes</strong>.
+				<br />
+				Your email is <strong>unchangeable</strong>.
+			</div>
+
+			<div class="alert alert-info alert-dismissable" id="object-changed-alert">
+				<span></span>
+			</div>
+
+			<div class="alert alert-info alert-dismissable" id="object-failed-alert">
+				<span></span>
+			</div>
+
+			<h3>Personal info</h3>
+
+			<form class="form-horizontal" role="form">
+				<div class="form-group">
+					<label class="col-lg-3 control-label">Email:</label>
+					<div class="col-lg-8">
+						<input class="form-control" type="text" value="johndoe@example.com" readonly id="email-display">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-lg-3 control-label">Display name:</label>
+					<div class="col-lg-8">
+						<input class="form-control" type="text" placeholder="Ex: John Doe" id="display-name">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-md-3 control-label"></label>
+					<div class="col-md-8">
+						<input type="button" class="btn btn-primary" value="Save" id="save-changes-btn-displayname">
+					</div>
+				</div>
+			</form>
+			<hr />
+
+			<form class="form-horizontal" id="change-password">
+				<div class="form-group">
+					<label class="col-md-3 control-label">Current password:</label>
+					<div class="col-md-8">
+						<input class="form-control" type="password" id="current-password" autocomplete="off" required>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-md-3 control-label">New password:</label>
+					<div class="col-md-8">
+						<input class="form-control" type="password" id="new-password" autocomplete="off" required>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-md-3 control-label">Confirm new password:</label>
+					<div class="col-md-8">
+						<input class="form-control" type="password" id="confirm-password" autocomplete="off" required>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-md-3 control-label"></label>
+					<div class="col-md-8">
+						<button type="submit" class="btn btn-primary btn-edit-profile" id="save-changes-btn-password">Save</button>
+					</div>
+				</div>
+			</form>
+
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	$(window).load(function () {
+		var d = {"token": localStorage.getItem("user_token")};
+		$.ajax({
+			url: 'https://worldclock-intern.herokuapp.com/checktoken',
+			type: 'POST',
+			data: JSON.stringify(d),
+			dataType: 'json',
+			headers:{
+				'Content-Type':"application/json; charset=utf-8",
+				'Accept':'application/json',
+				"Authorization": "Token token="+d.token
+			},
+			complete: function (xhr) {
+                // console.log(xhr.status); // 200
+                if(xhr.status==200) {
+                }
+                else {
+                	localStorage.removeItem("user_token");
+                	window.location.href = "/";
+                }
+            }
+        });
+		var title = localStorage.getItem("user_displayname")==null ? localStorage.getItem("user_email") : localStorage.getItem("user_displayname"); 
+		$(document).prop('title', (title==null? "Edit profile":title+"'s profile"));
+	}
+</script>
+</body>
+</html>

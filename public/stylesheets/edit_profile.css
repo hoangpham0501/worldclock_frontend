@@ -1,0 +1,37 @@
+body{
+  padding-top: 52px;
+}
+#save-changes-btn {
+  background: linear-gradient(to bottom,#654a86,#534292);
+  border-color: transparent !important;
+}
+
+#save-changes-btn:hover {
+  background: linear-gradient(to bottom,#654a86,#401879);
+}
+
+.control-label {
+  font-weight: 400;
+}
+
+#info-content {
+    margin-top: 2.5em;
+}
+
+/*------------------------ Custom Alert -------------------------------*/
+#object-changed-alert {
+  color: #755e90;
+  background-color: #e9dcf9;
+  border-color: #dbcfe8;
+  display: none;
+}
+
+#object-failed-alert {
+  color: #8f3131;
+  background-color: #f7d9d9;
+  border-color: #f1bcbc;
+  display: none;
+}
+#change-password{
+  display: none;
+}

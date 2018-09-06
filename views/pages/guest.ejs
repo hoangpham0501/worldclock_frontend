@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>WorldClock</title>
+    <link rel="shortcut icon" href="/resources/favicon.ico">
+    <script src="https://unpkg.com/vue"></script>
+    <script src="/js/sweetalert.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/stylesheets/sweetalert.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/3.1.3/css/bootstrap-datetimepicker.min.css">
+    <script type="text/javascript" src="https:////cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.min.js"></script>
+    <script type="text/javascript" src="/js/moment-timezone-with-data.js"></script>
+    <script type="text/javascript" src="/js/lodash.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBelU5r9GUXEsGOcSqL0pK5OFMsEF7ssXE" type="text/javascript"></script>
+    <script type="text/javascript" src="/js/bootstrap-datetimepicker.js"></script>
+    <script type="text/javascript" src="/js/guest.js"></script>
+    <script type="text/javascript" src="/js/jquery-ui.js"></script>
+    <script type="text/javascript" src="/js/js_cookie.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/stylesheets/guest.css">
+
+    <!-- TimePicker -->
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/timepicker.js/latest/timepicker.min.css">
+    <script type="text/javascript" src="//cdn.jsdelivr.net/timepicker.js/latest/timepicker.min.js"></script>
+</head>
+
+<body>
+    <div class="vertical-centered-box">
+        <div class="_content">
+            <div class="loader-circle"></div>
+            <div class="loader-line-mask">
+                <div class="loader-line"></div>
+            </div>
+            <img class="logo" src="resources/world-clock-logo-small.png" alt="Logo">
+        </div>
+    </div>
+    <div id='header'>
+        <ul>
+            <img src="../resources/world-clock-icon-40.png" alt="Logo">
+            <img src="../resources/world-clock-logo-small.png" alt="Logo">
+            <button class="button" onclick="window.location.href='/login'"><i class="fa fa-sign-in" aria-hidden="true"></i> Sign In</button>
+            <button class="button" onclick="window.location.href='/signup'"><i class="fa fa-check" aria-hidden="true"></i> Sign Up</button>
+        </ul>
+    </div>
+    <div class="top-nav" id="top-nav">
+        <div class="limit-width">
+            <span>The World Clock — Worldwide</span>
+        </div>
+    </div>
+    <div class="content">
+        <div class="panel">
+            <input type="text" name="search" id="searchbox" placeholder="&#xf067; Place" autocomplete="off">
+            <div class="result" id="result">
+                <div v-for="(city,index) in orderedCapitals" class='resultCity' onclick='app.addCity(this,1)'>
+                    <span class='resultCapitalName' :value='city.city'>{{city.city}}</span>
+                    <span class='resultCountryCapital'>{{city.country}}</span>
+                    <span class="capitalIcon">C</span>
+                    <img class='flag' :src="countryFlag(city.countryCode)" :value="city.countryCode">
+                    <span class='resultTimezone'>{{city.timezone}}</span>
+                </div>
+                <div v-for="(city,index) in orderedCities" class='resultCity' onclick='app.addCity(this,2)'>
+                    <span class='resultCityName' :value='city.city'>{{city.city}}</span>
+                    <span class='resultCountry'>{{city.country}}</span>
+                    <img class='flag' :src="countryFlag(city.countryCode)" :value="city.countryCode">
+                    <span class='resultTimezone'>{{city.timezone}}</span>
+                </div>
+                <div class="showMore" @click='showMore()'>
+                    <span>Show More</span>
+                </div>
+                <div class="noResult">
+                    <span>No matches found</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class='input-group date' id='datetimepicker1'>
+                    <input type='text' class="form-control" id="momentDate" style="display: none;" />
+                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                </div>
+            </div>
+            <ul id="days">
+                <li v-for="day in dates" :class="{now:day.today} " :id="setWeekend(day)" @click="chooseDay(day)">
+                    <span v-show="day.today">{{day.month}}</span> {{day.day}}
+                    <span class="dateTooltip">{{day.date}}</span>
+                </li>
+            </ul>
+            <a class="extension-util" id="gg-calendar">
+                <img style="width:22px;height:22px;" src="/resources/gg-calendar.png" />
+                Google Calendar
+            </a>
+
+            <span style="width: 3px;float: right; margin-top:9px; margin-right:5px">
+                <span style="display: inline-block; width: 0; height: 20px; border-left: 1px solid #cfcfcf; border-right: 1px solid #fff;"></span>
+            </span>
+            <a class="extension-util" id="recommend-time">
+                <img style="width:22px;height:22px;" src="/resources/recommend-time.png" />
+                Recommend Time
+            </a>
+        </div>
+        <div class="city-block" id="app">
+            <div v-for="(city,index) in orderedCities" class="city">
+                <div class="city-attr">
+                    <div class="timeZone">
+                        <span :class="{isHome : city.home}"></span>
+                        <span>{{ displayTimezone(city.timezone) }}</span>
+                    </div>
+                    <div class="cityLabel">
+                        <div class="cityName"><b>{{city.name}}</b><span class="timezoneAbbr">{{city.abbr}}</span></div>
+                        <div class="cityCountry">{{city.country}}</div>
+                    </div>
+                    <div class="timeLabel">
+                        <div class="timeNow">{{city.time}}</div>
+                        <div class="dateNow">{{getCityDate(city)}}</div>
+                    </div>
+                </div>
+                <div class="city-time" :class="{current:city.home}">
+                    <div class="hours">
+                        <div v-for="n in 24" :style="{ marginLeft: setOddDiff(n,city) }" class="hour" :value="n" :id="setIdHour(hoursCompute(n,city),index)">
+                            {{hoursCompute(n,city)}}
+                        </div>
+                    </div>
+                </div>
+                <div class="cityBtn">
+                    <button class="homeBtn" v-show="!city.home" @click='setHomeCity(city)'></button>
+                    <button class="deleteBtn" @click='removeCity(city)'></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="alert alert-info alert-dismissable" id="object-changed-alert">
+        <span>
+            <strong>Suitable time</strong> has been found
+        </span>
+    </div>
+    <div class="alert alert-info alert-dismissable" id="object-failed-alert">
+        <span>
+            Cannot find <strong>Suitable time</strong>
+        </span>
+    </div>
+    <div  class="app-footer allow-if-delinquent ember-view"><div class="section-content">
+        <ul class="list-inline">
+            <li class="hidden-xs"><a href="http://codeenginestudio.com/">codeenginestudio.com</a></li>
+        </ul>
+        <ul class="list-inline footer-actions">
+            <li>
+                <a href="/about_us" target="_blank" class="btn btn-primary btn-xs u-margin-Rs">About us</a>
+            </li>
+        </ul>
+        <ul class="list-inline">
+            <li>© 2017 CES Interns</li>
+        </ul>
+    </div>
+</div>
+<script>
+    const appDay = new Vue({
+        el: '#days',
+        data: {
+            dates: [],
+        },
+        methods: {
+            setWeekend: function(day) {
+                if (day.date == 'Sun' || day.date == 'Sat')
+                    return 'weekend';
+                else return "";
+            },
+            setDate: function() {
+                var value = $("#momentDate").val();
+                var daysDisplayed;
+                var dayArray = [];
+                for (i = -1; i < 6; i++) {
+                    daysDisplayed = moment(value, "ddd DD MMM YYYY").add(i, 'd').format("ddd DD MMM YYYY");
+                    dayArray = daysDisplayed.split(" ");
+                    if (i != 0) {
+                        this.dates.push({
+                            date: dayArray[0],
+                            day: dayArray[1],
+                            month: dayArray[2],
+                            year: dayArray[3],
+                            today: false,
+                        })
+                    } else {
+                        this.dates.push({
+                            date: dayArray[0],
+                            day: dayArray[1],
+                            month: dayArray[2],
+                            year: dayArray[3],
+                            today: true,
+                        })
+                    }
+                }
+                app.date = moment(value, "ddd DD MMM YYYY").format('ddd, MMM DD');
+            },
+            chooseDay: function(day) {
+                var d = day.date + " " + day.day + " " + day.month + " " + day.year;
+                var value = $("#momentDate").val();
+                if (d != value) {
+                    $('#datetimepicker1').data("DateTimePicker").date(d);
+                    var dayBefore1 = moment().subtract(1,"days").format("ddd DD MMM YYYY");
+                    var dayBefore2 = moment().subtract(2,"days").format("ddd DD MMM YYYY");
+                    var dayBefore3 = moment().subtract(3,"days").format("ddd DD MMM YYYY");
+                    if(d!=dayBefore1 && d!=dayBefore2 && d!=dayBefore3) app.date = moment(d, "ddd DD MMM YYYY").format('ddd, MMM DD');
+                }
+            },
+            updateDate: function() {
+                var value = $("#momentDate").val();
+                app.date = moment(value, "ddd DD MMM YYYY").format('ddd, MMM DD');
+                var valueArray = value.split(" ");
+                var updated = false;
+                var dates = this.dates;
+                for (var i = 0; i < dates.length; i++) {
+
+                    dates[i].today = false;
+                    if (dates[i].date == valueArray[0] && dates[i].day == valueArray[1] && dates[i].month == valueArray[2] && dates[i].year == valueArray[3]) {
+                        dates[i].today = true;
+                        updated = true;
+                    }
+                }
+                if (!updated) {
+                    this.dates = [];
+                    var daysDisplayed;
+                    var dayArray = [];
+                    for (i = -3; i < 4; i++) {
+                        daysDisplayed = moment(value, "ddd DD MMM YYYY").add(i, 'd').format("ddd DD MMM YYYY");
+                        dayArray = daysDisplayed.split(" ");
+                        if (i != 0) {
+                            this.dates.push({
+                                date: dayArray[0],
+                                day: dayArray[1],
+                                month: dayArray[2],
+                                year: dayArray[3],
+                                today: false,
+                            })
+                        } else {
+                            this.dates.push({
+                                date: dayArray[0],
+                                day: dayArray[1],
+                                month: dayArray[2],
+                                year: dayArray[3],
+                                today: true,
+                            })
+                        }
+                    }
+                }
+            }
+        }
+    })
+const app = new Vue({
+    el: '#app',
+    data: {
+                bar: [], //left,right,duraton
+                color: "#",
+                quantity: 0,
+                date: '',
+                time: '',
+                timezone: '',
+                cities: [],
+                durationH: 0,
+                durationM: 0,
+                startH: 0,
+                startM: 0,
+            },
+            computed: {
+                orderedCities: function() {
+                    return _.orderBy(this.cities, 'home', 'desc');
+                }
+            },
+            methods: {
+                setCityByIP:function(){
+                    var timestamp = Math.floor(Date.now() / 1000);
+                    var _this = this;
+                    $.get("https://ipinfo.io", function(response) {
+                        $.get("https://api.ipinfodb.com/v3/ip-city/?key=913d67e381349ddff7fc2c5583e89c7512b3ffd2d47e944cf9f6e35ca5eacd7a&ip=" + response.ip + "&format=json", function(e) {
+                            $.get("https://maps.googleapis.com/maps/api/timezone/json?location=" + e.latitude + "," + e.longitude + "&timestamp=" + timestamp + "&sensor=false", function(data) {
+                                _this.cities.push({
+                                    name: e.cityName,
+                                    country: (e.countryName == 'Viet Nam' ? 'Vietnam' : e.countryName),
+                                    countryCode : 'vn',
+                                    timezone: (data.rawOffset + data.dstOffset) / 3600,
+                                    abbr: moment.tz(data.timeZoneId).format('z'),
+                                    home: true,
+                                    timezoneName: data.timeZoneId,
+                                    time: moment.tz(moment(), data.timeZoneId).format("HH:mm"),
+                                });
+                                var d = moment.tz(moment(), data.timeZoneId).format('ddd DD MMM YYYY');
+                                _this.time = moment.tz(moment(), data.timeZoneId).format('HH:mm');
+                                _this.date = moment.tz(moment(), data.timeZoneId).format('ddd, MMM DD');
+                                _this.timezone = (data.rawOffset + data.dstOffset) / 3600;
+                                var minute = parseInt(moment.tz(moment(), data.timeZoneId).format('mm'));
+                                _this.startH = parseInt(moment.tz(moment(), data.timeZoneId).format('HH'));
+                                _this.startM = Math.floor(minute / 5) * 5;
+                                $("#time-display-1").text((_this.startH<10 ? "0" + _this.startH : _this.startH) + ":" + (_this.startM<10 ? "0" + _this.startM : _this.startM) );
+                                $("#momentDate").val(d);
+                                appDay.setDate();
+                                _this.quantity += 1;
+                                if (e.cityName == "London" && e.countryName == "United Kingdom") {
+                                    BerlinTimezone = moment.tz(moment(), "Europe/Berlin").format("Z");
+                                    BerlinTz = BerlinTimezone.split(":");
+                                    _this.cities.push({
+                                        name: "Berlin",
+                                        country: "Germany",
+                                        countryCode: 'de',
+                                        timezone: parseInt(BerlinTz),
+                                        abbr: moment.tz("Europe/Berlin").format('z'),
+                                        home: false,
+                                        timezoneName: "Europe/Berlin",
+                                        time: moment.tz(moment(), "Europe/Berlin").format("HH:mm"),
+                                    })
+                                    BeijingTimezone = moment.tz(moment(), "Asia/Shanghai").format("Z");
+                                    BeijingTz = BeijingTimezone.split(":");
+                                    _this.cities.push({
+                                        name: "Beijing",
+                                        country: "China",
+                                        countryCode: "cn",
+                                        timezone: parseInt(BeijingTz),
+                                        abbr: moment.tz("Asia/Shanghai").format('z'),
+                                        home: false,
+                                        timezoneName: "Europe/Berlin",
+                                        time: moment.tz(moment(), "Asia/Shanghai").format("HH:mm"),
+                                    })
+                                } else {
+                                    LondonTimezone = moment.tz(moment(), "Europe/London").format("Z");
+                                    LondonTz = LondonTimezone.split(":");
+                                    _this.cities.push({
+                                        name: "London",
+                                        country: "United Kingdom",
+                                        countryCode: 'gb',
+                                        timezone: parseInt(LondonTz),
+                                        abbr: moment.tz("Europe/London").format('z'),
+                                        home: false,
+                                        timezoneName: "Europe/London",
+                                        time: moment.tz(moment(), "Europe/London").format("HH:mm"),
+                                    })
+                                    WashingtonTimezone = moment.tz(moment(), "America/New_York").format("Z");
+                                    WashingtonTz = WashingtonTimezone.split(":");
+                                    _this.cities.push({
+                                        name: "Washington, D.C.",
+                                        country: "United States",
+                                        countryCode: "us",
+                                        timezone: parseInt(WashingtonTz),
+                                        abbr: moment.tz("America/New_York").format('z'),
+                                        home: false,
+                                        timezoneName: "America/New_York",
+                                        time: moment.tz(moment(), "America/New_York").format("HH:mm"),
+                                    })
+                                }
+                                _this.quantity += 2;
+                            });
+})
+}, "jsonp");
+},
+setDefault: function() {
+    var timestamp = Math.floor(Date.now() / 1000);
+    var _this = this;
+    if (!Cookies.getJSON('city')|| (!Cookies.getJSON('city').length)) {
+        this.setCityByIP();
+    }
+    else{
+        // console.log("Cookies available");
+        _this.quantity = 0;
+        var city = Cookies.getJSON('city');
+        var country = Cookies.getJSON('country');
+        var ishome = Cookies.getJSON('ishome');
+        var countryCode = Cookies.getJSON('countryCode');
+        // console.log(ishome);
+        var geocoder = new google.maps.Geocoder();
+        for (var i = 0; i < city.length; i++) {
+            geocoder.geocode({
+                'address': city[i] + "," + country[i]
+            }, _this.passCounterToGeocoder(i, city, country,countryCode, ishome));
+        }
+
+    }
+},
+setOddDiff: function(n, city) {
+                    // set the Odd time delay before the 1st hour block
+                    var cities = this.cities;
+                    var index;
+                    for (var i in cities) {
+                        if (cities[i] == city) index = i;
+                    }
+                    var diff = this.timezoneDiff(index);
+                    if (diff >= 0) var oddDiff = diff - Math.floor(diff) - 1;
+                    else var oddDiff = Math.floor(diff) - diff;
+                    if (n == 1)
+                        if (oddDiff == -0.5) return "27px";
+                    else if (oddDiff == -0.25 || oddDiff == -0.75) return "18px";
+                    else return "9px";
+                },
+                displayTimezone: function(timezone) {
+                    // Calculate the time zone of each city
+                    var oddDiff = timezone - Math.floor(timezone);
+                    if (parseInt(timezone) >= 0) timezone = "+" + timezone;
+                    if (oddDiff) {
+                        var odd = oddDiff * 60;
+                        timezone = timezone.split(".")[0] + ":" + odd;
+                    }
+                    return timezone;
+                },
+                setCur: function(index) {
+                    if (index)
+                        return "";
+                    else return "current";
+                },
+                setIdHour: function(hourValue, index) {
+                    // set ID for each hour block
+                    if (hourValue == this.getDate(index, 0) || hourValue == this.getDate(index, 1)) return "dateBlock";
+                    else if (hourValue == 23) return "lastBlock";
+                    else if ((hourValue > 0 && hourValue < 6) || (hourValue == 22)) return "sleepHour";
+                    else if ((hourValue > 5 && hourValue < 8) || (hourValue > 17 && hourValue < 22)) return "busyHour";
+                    else return "freeHour";
+                },
+                timezoneDiff: function(n) {
+                    // calculate the time zone difference
+                    var timezone = this.timezone;
+                    var cities = this.cities;
+                    return cities[n].timezone - timezone;
+                },
+                hoursCompute: function(n, city, _index) {
+                    // Compute the hour to display in hour blocks
+                    var cities = this.cities;
+                    var index;
+                    for (var i in cities) {
+                        if (cities[i] == city) index = i;
+                    }
+                    var diff = this.timezoneDiff(index);
+                    if (diff != Math.floor(diff)) {
+                        if (diff >= 0) var oddDiff = diff - Math.floor(diff) - 1;
+                        else var oddDiff = Math.floor(diff) - diff;
+                    } else oddDiff = 0;
+                    if (oddDiff == 0) {
+                        diff = Math.floor(diff);
+                    } //where timezone is rounded
+                    else {
+                        if (diff != 0) diff = Math.floor(diff) + 1;
+                        else diff = Math.floor(diff);
+                    }
+                    var cal = n - 1 + diff;
+                    if (cal == 0) {
+                        var _date = moment(this.date, 'ddd, MMM DD').add('0', 'd').format("ddd");
+                        $('#dateBlock').append('<style>#city_' + _index + ' #dateBlock::after{content:"' + _date + '";}</style>');
+                        return this.getDate(index, 0);
+                    } else if (cal == 24) {
+                        var _date = moment(this.date, 'ddd, MMM DD').add('1', 'd').format("ddd");
+                        $('#dateBlock').append('<style>#city_' + _index + ' #dateBlock::after{content:"' + _date + '";}</style>');
+                        return this.getDate(index, 1);
+                    } else if (cal > 24)
+                    return (cal - 24);
+                    else if (cal > 0)
+                        return (cal);
+                    else if (cal < 0)
+                        return (cal + 24);
+                },
+                getCityDate: function(city) {
+                    var date = this.date + " " + this.time;
+                    var cities = this.cities;
+                    var index;
+                    for (var i in cities) {
+                        if (cities[i] == city) index = i;
+                    }
+                    return moment(date, 'ddd, MMM DD HH:mm').add(this.timezoneDiff(index), 'h').format('ddd, MMM DD');
+                },
+                getDate: function(index, count) {
+                    if (count) return moment(this.date, 'ddd, MMM DD').add(count, 'd').format("MMM DD");
+                    else return moment(this.date, 'ddd, MMM DD').format("MMM DD");
+                },
+                updateDate: function() {
+                    var date = $("#momentDate").val().split(" ");
+                    return date[2] + " " + parseInt(date[1]);
+                },
+                setDurationBar: function(){
+                    var startH = this.startH;
+                    var startM = this.startM;
+                    var durationH = this.durationH;
+                    var durationM = this.durationM;
+                    var pos1 = 326 + 34 * parseInt(startH) + startM/5 * 2.83325;
+                    var pos2 = pos1 + 34 * parseInt(durationH) + durationM/5 * 2.83325 +3;
+                    this.bar[0] = pos1;
+                    this.bar[1] = pos2;
+                    this.bar[2] = pos1 + 3;
+                    $('.duration').css({
+                        width: pos2-pos1-3,
+                        left: pos1 + 3
+                    });
+                    $('.barLeft').css({
+                        left: pos1
+                    });
+                    $('.barRight').css({
+                        left: pos2
+                    });
+                },
+                setCurrentBar: function() {
+                    //add and set position of current bar
+                    var time = this.time;
+                    var hour = moment(time, "HH:mm").format("HH");
+                    var minute = moment(time, "HH:mm").format("mm");
+                    var _minute = Math.floor(parseInt(minute) / 5);
+                    var pos = 326 + 34 * parseInt(hour) + _minute * 2.83325;
+                    this.bar[0] = pos;
+                    this.bar[1] = pos + 3;
+                    this.bar[2] = pos + 3;
+                    $('.duration').css({
+                        width: '0',
+                        left: pos + 3
+                    });
+                    $('.barLeft').css({
+                        left: pos
+                    });
+                    $('.barRight').css({
+                        left: (pos + 3)
+                    });
+                },
+                setCurrentBarHeight: function() {
+                    var h = 36 + (this.quantity - 1) * 71;
+                    $('.barLeft').css({
+                        height: h
+                    });
+                    $('.duration').css({
+                        height: h
+                    });
+                    $('.barRight').css({
+                        height: h
+                    });
+                },
+                isExistCity: function(cityName, countryName) {
+                    for (var i = 0; i < this.cities.length; i++)
+                        if (this.cities[i].name == cityName && this.cities[i].country == countryName) return true;
+                    return false;
+                },
+                addCity: function(event, type) {
+                    if(this.quantity<4){
+                        if (type == 2) {
+                            var cityName = $(event).find('.resultCityName').attr("value");
+                            var countryName = $(event).find('.resultCountry').text();
+                            var countryCode = $(event).find('img').attr('value');
+                        } else {
+                            var cityName = $(event).find('.resultCapitalName').attr("value");
+                            var countryName = $(event).find('.resultCountryCapital').text();
+                            var countryCode = $(event).find('img').attr('value');
+                        }
+                        var _this = this;
+                        if (!(_this.isExistCity(cityName, countryName))) {
+                            var timestamp = Math.floor(Date.now() / 1000);
+                            var geocoder = new google.maps.Geocoder();
+                            geocoder.geocode({
+                                'address': cityName + "," + countryName
+                            }, function(results, status) {
+                                if (status == google.maps.GeocoderStatus.OK) {
+                                    $.get("https://maps.googleapis.com/maps/api/timezone/json?location=" + results[0].geometry.location.lat() + "," + results[0].geometry.location.lng() + "&timestamp=" + timestamp + "&sensor=false", function(data) {
+                                        _this.cities.push({
+                                            name: cityName,
+                                            country: countryName,
+                                            countryCode : countryCode,
+                                            timezone: (data.rawOffset + data.dstOffset) / 3600,
+                                            abbr: moment.tz(data.timeZoneId).format('z'),
+                                            home: false,
+                                            timezoneName: data.timeZoneId,
+                                            time: moment.tz(moment(), data.timeZoneId).format("HH:mm"),
+                                        })
+                                    });
+                                    _this.quantity += 1;
+                                    _this.setCurrentBarHeight();
+                                } else {
+                                    alert("Something got wrong " + status);
+                                }
+                            });
+                            $('.result').slideUp(200);
+                        } else
+                        swal("Oops...", "This city has already been added ", "error");
+                    }
+                    else
+                        swal("Oops...", "Please login to add more cities ", "error");
+                },
+                removeCity: function(city) {
+                    var _this = this;
+                    var cities = this.cities;
+                    var index;
+                    var next;
+                    for (var i in cities) {
+                        if (cities[i] == city) index = i;
+                        if (index != 0) next = 0;
+                        else next = 1;
+                    }
+                    if (cities[index].home) {
+                        if (this.quantity > 1) {
+                            swal({
+                                title: "Are you sure?",
+                                text: "If you delete this city," + cities[next].name + " will become your home city !",
+                                type: "warning",
+                                showCancelButton: true,
+                                confirmButtonColor: "#DD6B55",
+                                confirmButtonText: "Yes, delete it!",
+                            },
+                            function(isConfirm) {
+                                if (isConfirm) {
+                                    _this.setHomeCity(cities[next]);
+                                    cities.splice(index, 1);
+                                    _this.quantity -= 1;
+                                    _this.setCurrentBarHeight();
+                                }
+                            });
+                        } else {
+                            swal("Oops...", "You can't delete this, unless you add a new city", "error");
+                        }
+                    } else {
+                        cities.splice(index, 1);
+                        this.quantity -= 1;
+                        _this.setCurrentBarHeight();
+                    }
+                },
+                setHomeCity: function(city) {
+                    var cities = this.cities;
+                    for(var i = 0; i < app.cities.length; i++)
+                        if (app.cities[i].home) var homeId;
+                    for (var i in cities) {
+                        if (cities[i] == city) {
+                            cities[i].home = true;
+                            this.timezone = cities[i].timezone;
+                            this.time = cities[i].time;
+                            this.data = this.getCityDate(city);
+                            var times = this.time.split(":");
+                            // var hour = times[0] < 10 ? "0"+times[0] : times[0];
+                            var hour = times[0];
+                            var _minute = Math.floor(times[1] / 5)*5;
+                            var minute = _minute < 10 ? "0"+_minute : _minute;
+                            var start = {"hour":hour,"minute":minute};
+                            moveLeft(start);
+                            this.startH = hour;
+                            this.startM = minute;
+                            this.durationH = 0;
+                            this.durationM =0;
+                        } else cities[i].home = false;
+                    }
+
+                },
+                setCookies: function() {
+                    var cities = this.cities;
+                    var guestcity = [];
+                    var ishome = [];
+                    var guestCountry = [];
+                    var guessCode = [];
+                    for (var i = 0; i < cities.length; i++) {
+                        guestcity[i] = cities[i].name;
+                        ishome[i] = cities[i].home;
+                        guestCountry[i] = cities[i].country;
+                        guessCode[i] = cities[i].countryCode;
+                    }
+                    Cookies.set('city', JSON.stringify(guestcity), {
+                        path: '/'
+                    });
+                    Cookies.set('country', JSON.stringify(guestCountry), {
+                        path: '/'
+                    });
+                    Cookies.set('ishome', JSON.stringify(ishome), {
+                        path: '/'
+                    });
+                    Cookies.set('countryCode', JSON.stringify(guessCode), {
+                        path: '/'
+                    });
+                },
+                passCounterToGeocoder: function(count, city, country,code, ishome) {
+                    var _this = this;
+                    var timestamp = Math.floor(Date.now() / 1000);
+                    return function(results, status) {
+                        if (status == google.maps.GeocoderStatus.OK) {
+                            $.get("https://maps.googleapis.com/maps/api/timezone/json?location=" + results[0].geometry.location.lat() + "," + results[0].geometry.location.lng() + "&timestamp=" + timestamp + "&sensor=false", function(data) {
+                                _this.cities.push({
+                                    name: city[count],
+                                    country: country[count],
+                                    countryCode: code[count],
+                                    timezone: (data.rawOffset + data.dstOffset) / 3600,
+                                    abbr: moment.tz(data.timeZoneId).format('z'),
+                                    home: ishome[count],
+                                    timezoneName: data.timeZoneId,
+                                    time: moment.tz(moment(), data.timeZoneId).format("HH:mm"),
+                                })
+                                if(ishome[count]){
+                                    var d = moment.tz(moment(), data.timeZoneId).format('ddd DD MMM YYYY');
+                                    _this.time = moment.tz(moment(), data.timeZoneId).format('HH:mm');
+                                    _this.date = moment.tz(moment(), data.timeZoneId).format('ddd, MMM DD');
+                                    _this.timezone = (data.rawOffset + data.dstOffset) / 3600;
+                                    var minute = parseInt(moment.tz(moment(), data.timeZoneId).format('mm'));
+                                    _this.startH = parseInt(moment.tz(moment(), data.timeZoneId).format('HH'));
+                                    _this.startM = Math.floor(minute / 5) * 5;
+                                    $("#time-display-1").text((_this.startH<10 ? "0" + _this.startH : _this.startH) + ":" + (_this.startM<10 ? "0" + _this.startM : _this.startM) );
+                                    $("#momentDate").val(d);
+                                    appDay.setDate();
+                                }
+                            });
+                            _this.quantity += 1;
+                            _this.setCurrentBarHeight();
+                        } else {
+                            alert("Something got wrong " + status);
+                        }
+                    }
+                }
+            }
+        })
+const result = new Vue({
+    el: '#result',
+    data: {
+        timestamp: Math.floor(Date.now() / 1000),
+        moreCapitals: 1,
+        moreCities: 1,
+        capitals: [],
+        cities: []
+    },
+    computed: {
+        orderedCities: function() {
+            return _.orderBy(this.cities, 'city')
+        },
+        orderedCapitals: function() {
+            return _.orderBy(this.capitals, 'city');
+        }
+    },
+    methods: {
+        countryFlag:function(countryCode){
+            return 'http://www.geonames.org/flags/x/' + countryCode + '.gif';
+        },
+        displayCapitals: function(showMore) {
+            var _this = this;
+            var value = $("#searchbox").val();
+            if (value)
+                $.ajax({
+                    url: 'https://worldclock-intern.herokuapp.com/showcapital?search=' + value + '&more=' + _this.moreCapitals,
+                    type: 'GET',
+                    dataType: 'json',
+                    headers: {
+                        'Content-Type': "application/json; charset=utf-8",
+                        'Accept': 'application/json',
+                    },
+                    success: function(e, t) {
+                        if (t == 'success') {
+                            $('.showMore').hide();
+                            $('.noResult').hide();
+                            if (!showMore) {
+                                _this.moreCapitals = 1;
+                                _this.capitals = [];
+                            }
+                            var results = e.result;
+                            _this.callAjaxGetTz(results, 2, 1);
+                            $('.result').slideDown(200);
+                            if (results.length == (_this.moreCapitals * 2)) {
+                                $('.showMore').slideDown(500);
+                            }
+                        } else {
+                            $('.showMore').hide();
+                            _this.moreCapitals = 1;
+                            _this.capitals = [];
+                            $('.result').slideDown(200);
+                        }
+                    },
+                    error: function() {
+                        // console.log("there was some error");
+                    }
+                });
+            else {
+                _this.moreCapitals = 1;
+                _this.capitals = [];
+                $('.noResult').hide();
+                $('.showMore').hide();
+                $('.result').slideUp(200);
+            }
+        },
+        displayCities: function(showMore) {
+            var _this = this;
+            var value = $("#searchbox").val();
+            if (value)
+                $.ajax({
+                    url: 'https://worldclock-intern.herokuapp.com/showcountry?search=' + value + '&more=' + _this.moreCities,
+                    type: 'GET',
+                    dataType: 'json',
+                    headers: {
+                        'Content-Type': "application/json; charset=utf-8",
+                        'Accept': 'application/json',
+                    },
+                    success: function(data, textStatus) {
+                        if (textStatus == 'success') {
+                            $('.showMore').hide();
+                            $('.noResult').hide();
+                            if (!showMore) {
+                                _this.moreCities = 1;
+                                _this.cities = [];
+                            }
+                            var results = data.result;
+                            _this.callAjaxGetTz(results, 5, 2);
+                            $('.result').slideDown(200);
+                            if (results.length == (_this.moreCities * 5)) {
+                                $('.showMore').slideDown(500);
+                            }
+                        } else {
+                            $('.showMore').hide();
+                            _this.moreCities = 1;
+                            _this.cities = [];
+                            $('.result').slideDown(200);
+                            if (_this.capitals.length == 0) $('.noResult').show();
+                        }
+                    },
+                    error: function() {
+                        // console.log("there was some error");
+                    }
+                });
+            else {
+                _this.moreCities = 1;
+                _this.cities = [];
+                $('.noResult').hide();
+                $('.showMore').hide();
+                $('.result').slideUp(200);
+            }
+        },
+        callAjaxGetTz: function(result, count, type) {
+            var _this = this;
+            var moreIndex = (_this.moreCities - 1) * count;
+            if (moreIndex == 0) {
+                if (result.length == (_this.moreCities * count)) {
+                    for (var i = moreIndex; i < (result.length - 1); i++) {
+                        var geocoder = new google.maps.Geocoder();
+                        geocoder.geocode({
+                            'address': result[i][0] + "," + result[i][2]
+                        }, _this.passCountToAjax(i, result, type));
+                    }
+                } else {
+                    for (var i = moreIndex; i < result.length; i++) {
+                        var geocoder = new google.maps.Geocoder();
+                        geocoder.geocode({
+                            'address': result[i][0] + "," + result[i][2]
+                        }, _this.passCountToAjax(i, result, type));
+                    }
+                }
+            } else {
+                if (result.length == (_this.moreCities * count)) {
+                    for (var i = moreIndex - 1; i < (result.length - 1); i++) {
+                        var geocoder = new google.maps.Geocoder();
+                        geocoder.geocode({
+                            'address': result[i][0] + "," + result[i][2]
+                        }, _this.passCountToAjax(i, result, type));
+                    }
+                } else {
+                    for (var i = moreIndex - 1; i < result.length; i++) {
+                        var geocoder = new google.maps.Geocoder();
+                        geocoder.geocode({
+                            'address': result[i][0] + "," + result[i][2]
+                        }, _this.passCountToAjax(i, result, type));
+                    }
+                }
+            }
+        },
+        passCountToAjax: function(count, result, type) {
+            var _this = this;
+            return function(results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                    $.ajax({
+                        url: "https://maps.googleapis.com/maps/api/timezone/json?location=" + results[0].geometry.location.lat() + "," + results[0].geometry.location.lng() + "&timestamp=" + _this.timestamp,
+                        methods: "get",
+                        success: function(data) {
+                            var tzValue = (data.rawOffset + data.dstOffset) / 3600;
+                            if (type == 2) {
+                                _this.cities.push({
+                                    city: result[count][0],
+                                    country: result[count][2],
+                                    countryCode: result[count][1].toLowerCase(),
+                                    timezone: moment.tz(data.timeZoneId).format('Z'),
+                                })
+                                $('.noResult').slideUp(200);
+                            } else {
+                                _this.capitals.push({
+                                    city: result[count][2],
+                                    country: result[count][0],
+                                    countryCode: result[count][1].toLowerCase(),
+                                    timezone: moment.tz(data.timeZoneId).format('Z'),
+                                })
+                                $('.noResult').slideUp(200);
+                            }
+                        }
+                    });
+                }
+            }
+        },
+        showMore: function() {
+            this.moreCapitals++;
+            this.moreCities++;
+            this.displayCapitals(true);
+            this.displayCities(true);
+            $('.result').slideDown(200);
+        }
+    }
+})
+</script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        setTimeout(function(){
+            $(".vertical-centered-box").fadeOut("slow",function(){
+                $('.vertical-centered-box').remove();
+            });
+        },2000)
+        app.setDefault();
+        setInterval(function() {
+            app.time = moment.tz(moment(), app.cities[getHomeId()].timezoneName).format('HH:mm');
+            for(var i=0;i<app.cities.length;i++){
+                app.cities[i].time = moment.tz(moment(), app.cities[i].timezoneName).format('HH:mm');
+            }
+        },1000);
+        setTimeout(function() {
+            $('.current').prepend('<div class="barLeft"></div><div class="duration"></div><div class="barRight"></div>');
+            setTitleCurBar();
+            app.setCurrentBar();
+            app.setCurrentBarHeight();
+            var posMin = 326,
+            posMax = 326 + 34 * 24 - 2.83325;
+            var tmp = 0;
+            $(function() {
+                $(".duration").draggable({
+                    axis: "x",
+                    grid: [2.83325, 0],
+                    drag: function(event, ui) {
+                        var posLeft = app.bar[0];
+                        var posRight = app.bar[1];
+                        var durationLeft = app.bar[2];
+                        var durationWidth = posRight - posLeft - 3;
+                        var pos = ui.position.left;
+                        if (pos < (posMin + 3)) ui.position.left = posMin + 3;
+                        if ((pos + durationWidth) > (posMax + 3)) ui.position.left = posMax + 3 - durationWidth;
+                        app.bar[0] = ui.position.left - 3;
+                        app.bar[1] = ui.position.left + durationWidth;
+                        app.bar[2] = ui.position.left;
+                        $('.barLeft').css({
+                            left: app.bar[0]
+                        });
+                        $('.barRight').css({
+                            left: app.bar[1]
+                        });
+                        var timeOffset = Math.round((ui.position.left-posMin)/2.83325)-1;
+                        var newStartH = Math.floor(timeOffset/12);
+                        var newStartM = (timeOffset - newStartH*12)*5;
+                        var value1 = (newStartH<10 ? "0" + newStartH : newStartH) + ":" + (newStartM<10 ? "0" + newStartM : newStartM);
+                        $("#time-display-1").text(value1);
+                        app.startH = newStartH;
+                        app.startM = newStartM;
+                        setTitleCurBar();
+                        $("#object-changed-alert").slideUp();
+                        $("#object-failed-alert").slideUp();
+                    }
+                })
+                $(".barLeft").draggable({
+                    axis: "x",
+                    grid: [2.83325, 0],
+                    drag: function(event, ui) {
+                        var posLeft = app.bar[0];
+                        var posRight = app.bar[1];
+                        var durationLeft = app.bar[2];
+                        var durationWidth = posRight - posLeft - 3;
+                        var pos = ui.position.left;
+                        if (pos < posMin) ui.position.left = posMin;
+                        if (pos > posRight - 0.2) ui.position.left = posRight - 3;
+                        durationWidth += posLeft - ui.position.left;
+                        if (durationWidth < 0) durationWidth = 0;
+                        app.bar[0] = ui.position.left;
+                        app.bar[2] = ui.position.left + 3;
+                        $('.duration').css({
+                            left: app.bar[2],
+                            width: durationWidth
+                        });
+                        var timeOffset = Math.round((ui.position.left-posMin)/2.83325);
+                        var newStartH = Math.floor(timeOffset/12);
+                        var newStartM = (timeOffset - newStartH*12)*5;
+                        var timeOffset = Math.floor((app.bar[1]-posMin)/2.83325)-1;
+                        var newDurationH = Math.floor((timeOffset - newStartM/5 -newStartH*12)/12);
+                        var newDurationM = (timeOffset - newStartH*12 - newStartM/5 - newDurationH*12)*5; 
+                        var value1 = (newStartH<10 ? "0" + newStartH : newStartH) + ":" + (newStartM<10 ? "0" + newStartM : newStartM);
+                        $("#time-display-1").text(value1);
+                        var value2 = (newDurationH<10 ? "0" + newDurationH : newDurationH) + ":" + (newDurationM<10 ? "0" + newDurationM : newDurationM);
+                        $("#time-display-2").text(value2);
+                        app.startH = newStartH;
+                        app.startM = newStartM;
+                        app.durationH = newDurationH;
+                        app.durationM = newDurationM;
+                        setTitleCurBar();
+                        $("#object-changed-alert").slideUp();
+                        $("#object-failed-alert").slideUp();   
+                    },
+                });
+                $(".barRight").draggable({
+                    axis: "x",
+                    grid: [2.83325, 0],
+                    drag: function(event, ui) {
+                        var posLeft = app.bar[0];
+                        var posRight = app.bar[1];
+                        var durationLeft = app.bar[2];
+                        var durationWidth = posRight - posLeft - 3;
+                        var pos = ui.position.left;
+                        if (pos < (posLeft + 3)) ui.position.left = posLeft + 3;
+                        if (pos > (posMax + 3)) ui.position.left = posMax + 3;
+                        durationWidth += ui.position.left - posRight;
+                        if (durationWidth < 0) durationWidth = 0;
+                        app.bar[1] = ui.position.left;
+                        $('.duration').css({
+                            width: durationWidth
+                        });
+                        var timeOffset = Math.round((ui.position.left-posMin)/2.83325)-1;
+                        var newDurationH = Math.floor((timeOffset - app.startM/5 -app.startH*12)/12) ;
+                        var newDurationM = (timeOffset - app.startH*12 - app.startM/5 - newDurationH*12)*5; 
+                        var value2 = (newDurationH<10 ? "0" + newDurationH : newDurationH) + ":" + (newDurationM<10 ? "0" + newDurationM : newDurationM);
+                        $("#time-display-2").text(value2);
+                        app.durationH = newDurationH;
+                        app.durationM = newDurationM;
+                        setTitleCurBar();
+                        $("#object-changed-alert").slideUp();
+                        $("#object-failed-alert").slideUp();
+                    }
+                });
+            });
+}, 3000);
+
+
+$('#datetimepicker1').on('dp.change', function(e) {
+    appDay.updateDate();
+})
+$('#searchbox').on("input", _.debounce(function() {
+    result.displayCapitals(false);
+    result.displayCities(false);
+}, 700));
+
+
+
+$('#searchbox').on("focusout", function() {
+    if (!$('.result:active').length) {
+        $('.result').slideUp(200);
+    }
+});
+$('#searchbox').on("focusin", function() {
+    if ($('.result').is(':has(".resultCity")')) {
+        $('.result').slideDown(200);
+    }
+});
+
+});
+$(window).unload(function() {
+    app.setCookies();
+});
+
+</script>
+</body>
+
+</html>

@@ -1,0 +1,462 @@
+ $(function () {
+   var bindDatePicker = function(){
+    $(".date").datetimepicker({
+     minDate: moment(moment().format('ddd DD MMM YYYY'),"ddd DD MMM YYYY'"),
+     useCurrent: true,
+     showClose:true,
+     keepOpen:false,
+     format:'ddd DD MMM YYYY',
+     icons: {
+      time: "fa fa-clock-o",
+      date: "fa fa-calendar",
+      up: "fa fa-arrow-up",
+      down: "fa fa-arrow-down"
+    }
+  }).find('input:first').on("blur",function () {
+      // check if the date is correct. We can accept dd-mm-yyyy and yyyy-mm-dd.
+      // update the format if it's yyyy-mm-dd
+      var date = parseDate($(this).val());
+      if (! isValidDate(date)) {
+        //create date based on momentjs (we have that)
+        date = moment().format('ddd DD MMM YYYY');
+      }
+      $(this).val(date);
+    });
+}
+
+var isValidDate = function(value, format){
+  format = format || false;
+    // lets parse the date to the best of our knowledge
+    if (format) {
+      value = parseDate(value);
+    }
+    var timestamp = Date.parse(value);
+    return isNaN(timestamp) == false;
+  }
+
+  var parseDate = function(value){
+    var m = value.match(/^(\d{3})(\/|-)?(\d{1,2})(\/|-)?(\d{1,2})(\/|-)?(\d{4})$/);
+    if (m)
+     value = m[5] + '-' + ("00" + m[3]).slice(-2) + '-' + ("00" + m[1]).slice(-2);
+   return value;
+ }
+ bindDatePicker();
+});
+
+ (function($) {
+
+  $.fn.menumaker = function(options) {
+
+    var header = $(this), settings = $.extend({
+      title: "Menu",
+      format: "dropdown",
+      breakpoint: 768,
+      sticky: false
+    }, options);
+
+    return this.each(function() {
+      header.find('li ul').parent().addClass('has-sub');
+      if (settings.format != 'select') {
+        header.prepend('<div id="menu-button">' + settings.title + '</div>');
+        $(this).find("#menu-button").on('click', function(){
+          $(this).toggleClass('menu-opened');
+          var mainmenu = $(this).next('ul');
+          if (mainmenu.hasClass('open')) { 
+            mainmenu.hide().removeClass('open');
+          }
+          else {
+            mainmenu.show().addClass('open');
+            if (settings.format === "dropdown") {
+              mainmenu.find('ul').show();
+            }
+          }
+        });
+
+        multiTg = function() {
+          header.find(".has-sub").prepend('<span class="submenu-button"></span>');
+          header.find('.submenu-button').on('click', function() {
+            $(this).toggleClass('submenu-opened');
+            if ($(this).siblings('ul').hasClass('open')) {
+              $(this).siblings('ul').removeClass('open').hide();
+            }
+            else {
+              $(this).siblings('ul').addClass('open').show();
+            }
+          });
+        };
+
+        if (settings.format === 'multitoggle') multiTg();
+        else header.addClass('dropdown');
+      }
+
+      else if (settings.format === 'select')
+      {
+        header.append('<select style="width: 100%"/>').addClass('select-list');
+        var selectList = header.find('select');
+        selectList.append('<option>' + settings.title + '</option>', {
+         "selected": "selected",
+         "value": ""});
+        header.find('a').each(function() {
+          var element = $(this), indentation = "";
+          for (i = 1; i < element.parents('ul').length; i++)
+          {
+            indentation += '-';
+          }
+          selectList.append('<option value="' + $(this).attr('href') + '">' + indentation + element.text() + '</option');
+        });
+        selectList.on('change', function() {
+          window.location = $(this).find("option:selected").val();
+        });
+      }
+
+      if (settings.sticky === true) header.css('position', 'fixed');
+
+      resizeFix = function() {
+        if ($(window).width() > settings.breakpoint) {
+          header.find('ul').show();
+          header.removeClass('small-screen');
+          if (settings.format === 'select') {
+            header.find('select').hide();
+          }
+          else {
+            header.find("#menu-button").removeClass("menu-opened");
+          }
+        }
+
+        if ($(window).width() <= settings.breakpoint && !header.hasClass("small-screen")) {
+          header.find('ul').hide().removeClass('open');
+          header.addClass('small-screen');
+          if (settings.format === 'select') {
+            header.find('select').show();
+          }
+        }
+      };
+      resizeFix();
+      return $(window).on('resize', resizeFix);
+
+    });
+  };
+
+})(jQuery);
+(function($){
+  $(document).ready(function(){
+    $('#gg-calendar').on('click',function(){
+      window.open(updateGgCalendarLink(getEventName(),
+        getPlaces(),
+        getStartTime(),
+        getHomeOffset(),
+        getDuration()), '_blank');
+    })
+    $('#recommend-time').on('click',function(){
+      $("#object-changed-alert").css("display","none");
+      $("#object-failed-alert").css("display","none");
+      var pair = getRecommendTime(getCitiesOffset());
+
+      // calculate start and stop time
+      var start, stop;
+      if (pair[0] > pair[1]) {
+        start = {hour: 0, minute: 0};
+        stop = {hour: 0, minute: 0};
+        $("#object-failed-alert").slideDown();
+      } else {
+        start = { hour: Math.floor(pair[0] / 60), minute: pair[0] % 60};
+        stop = { hour: Math.floor(pair[1] / 60), minute: pair[1] % 60};
+        $("#object-changed-alert").slideDown();
+      }
+
+      // move bars
+      moveLeftRight(start, stop);
+    });
+  });
+})(jQuery);
+$(window).load(function () {
+  var token = sessionStorage.getItem("user_token");        
+  var d = {"token": localStorage.getItem("user_token")};
+  $.ajax({  
+    url: 'https://worldclock-intern.herokuapp.com/checktoken',    
+    type: 'POST',    
+    data: JSON.stringify(d),
+    dataType: 'json',
+    headers:{
+      'Content-Type':"application/json; charset=utf-8",
+      'Accept':'application/json',
+      "Authorization": "Token token="+d.token
+    },
+    complete: function (xhr) {    
+                console.log(xhr.status); // 200
+                if(xhr.status==200) {
+                  window.location.href = "/dashboard";
+                }
+              }
+            });   
+})
+
+function calcTime(timeStr) {
+  var starttimeint = 0;
+
+  var idx = 0;
+  while (idx < timeStr.length && timeStr[idx] != ':') {
+    starttimeint = starttimeint * 10 + parseInt(timeStr[idx]);
+    idx++;
+  }
+  starttimeint *= 60;
+  idx++;
+  var starttimeMin = 0;
+  while (idx < timeStr.length) {
+    starttimeMin = starttimeMin * 10 + parseInt(timeStr[idx]);
+    idx++;
+  }
+  starttimeint += starttimeMin;
+  return starttimeint;
+}
+
+function convertTime(timeInt) {
+  var timeConvertStr;
+
+  timeConvertStr = Math.floor(parseInt(timeInt) / 60);
+  if (timeConvertStr == "0" || timeConvertStr == "5") timeConvertStr = "0" + timeConvertStr;
+  timeConvertStr += ":";
+
+  var timeMinute =  parseInt(timeInt) % 60; 
+  if (timeMinute == "0" || timeMinute == "5") timeMinute = "0" + timeMinute;
+  timeConvertStr += timeMinute;
+
+  return timeConvertStr;
+}
+
+function getEventId() {
+  var sPageURL = window.location.pathname;
+  var eventid = sPageURL.split('/')[2];
+  console.log("eventid = " + eventid);
+  return eventid
+}
+
+var getHomeId = function () {
+  for(var i = 0; i < app.cities.length; i++)
+    if (app.cities[i].home) return i;
+}
+var moveLeft = function(evt) {
+  var pos = $('.barLeft').position().left;
+  var duration = 0;
+  var add = ((evt.hour || 0) - app.startH) * 34 + ((evt.minute || 0) - app.startM) / 5 * 2.83325;
+  $('.barLeft').animate({
+    left: pos + add
+  }, 200, function() {
+    app.startH = (evt.hour || 0);
+    app.startM = (evt.minute || 0);
+    app.bar[0] = pos + add;
+    app.bar[1] = pos + add + duration + 3;
+    app.bar[2] = pos + add + 3;
+    setTitleCurBar();
+  })
+  $('.duration').animate({
+    left: pos + add + 3,
+    width:duration,
+  }, 200);
+  $('.barRight').animate({
+    left: pos + add + duration + 3
+  }, 200)
+  $("#object-changed-alert").slideUp();
+  $("#object-failed-alert").slideUp(); 
+}
+
+/*-------------------- RECOMMEND TIME --------------------*/
+
+var moveLeftRight = function(evt, evt1) {
+  var pos = $('.barLeft').position().left;
+  var duration = ((evt1.hour || 0) - evt.hour) * 34 + ((evt1.minute || 0) - evt.minute) / 5 * 2.83325;
+  var add  = ((evt.hour || 0) - app.startH) * 34 + ((evt.minute || 0) - app.startM) / 5 * 2.83325;
+  $('.barLeft').animate({
+    left: pos + add
+  }, 200, function() {
+    app.startH = (evt.hour || 0);
+    app.startM = (evt.minute || 0);
+    app.bar[0] = pos + add;
+    app.bar[1] = pos + add + duration + 3;
+    app.bar[2] = pos + add + 3;
+    app.durationH = (evt1.hour || 0) - evt.hour;
+    app.durationM = (evt1.minute || 0) - evt.minute;
+    setTitleCurBar();
+  })
+  $('.duration').animate({
+    left: pos + add + 3,
+    width: duration
+  }, 200);
+  $('.barRight').animate({
+    left: pos + add + duration + 3
+  }, 200)
+}
+
+  // 5.2 -> 5       -5.2 -> -5
+  // 5.5 -> 6       -5.5 -> -6
+  // 5.8 -> 6       -5.8 -> -6
+  function roundHalfUpSymmetric(x) {
+    if (x >= 0) return Math.round(x);
+    return (x % 0.5 == 0) ? Math.floor(x) : Math.round(x);
+  }
+
+  function getCitiesOffset() {
+    var offset = [];
+
+    // we want offset[0] is home's
+    var homeid = getHomeId();
+    offset.push(app.cities[homeid].timezone);
+
+    // then push others's offset to last
+    for(var i = 0; i < app.cities.length; i++) {
+      if (i == homeid) continue;
+      offset.push(app.cities[i].timezone);
+    }
+
+    return offset;
+  }
+
+
+// timeOffsets is in hour
+// timeOffsets[0] is home
+function getRecommendTime(timeOffsets) {
+  // init (for home - timeOffsets[0])
+  var start = 8 * 60;     // 08:00
+  var end = 18 * 60 - 5;  // 17:55
+  var i = start;
+  var j = end;
+  var homeOffset = timeOffsets[0] * 60;
+
+  // minimize working times using i and j
+  for(var city = 1; city < timeOffsets.length; city++) {
+    var offset = timeOffsets[city] * 60;
+    var delta = homeOffset - offset;
+
+    // minimize i j
+    i = Math.max(i, start + delta);
+    j = Math.min(j, end + delta);
+  }
+
+  // half round to integer
+  i = roundHalfUpSymmetric(i);
+  j = roundHalfUpSymmetric(j);
+
+  // % 5 == 0
+  i = (i % 5 < 5 - (i % 5)) ? (i - (i % 5)) : (i + 5 - (i % 5));
+  j = (j % 5 < 5 - (j % 5)) ? (j - (j % 5)) : (j + 5 - (j % 5));
+  // return result
+  var pair = [i, j];
+  return pair;
+}
+/*-------------------- GOOGLE CALENDAR --------------------*/
+
+var getHomeId = function () {
+  for(var i = 0; i < app.cities.length; i++)
+    if (app.cities[i].home) return i;
+}
+
+function getEventName() {
+  return $("#event-name").text();
+}
+
+function getPlaces() {
+  var places = [];
+
+  // push home's name first
+  var homeid = getHomeId();
+  places.push(app.cities[homeid].name + ", " + app.cities[homeid].country);
+
+  // push other places name
+  for(var i = 0; i < app.cities.length; i++) {
+    if (i == homeid) continue;
+    places.push(app.cities[i].name + ", " + app.cities[i].country);
+  }
+
+  return places;
+}
+
+const DATETIME_FORMAT = "DD-MM-YYYY HH:mm:ss";
+function getStartTime() {
+  var startTime = [];
+
+  // calculate home's info
+  var date = moment($("#momentDate").val(), "ddd DD MMM YYYY").format("DD-MM-YYYY");
+  // var time = $("#time-display-1").text(); time += ":00";
+  var time = (app.startH<10 ? "0"+parseInt(app.startH):app.startH)+":"+(app.startM<10 ? "0"+parseInt(app.startM):app.startM)+":00";
+  startTime.push(date + ' ' + time);
+  var homedt = moment(date + ' ' + time, DATETIME_FORMAT, true);
+
+  // find home id;
+  var homeid = getHomeId();
+  console.log("homeid starttime = " + homeid);
+
+  // calculate other cities's start datetime
+  for(var i = 0; i < app.cities.length; i++) {
+
+    if (i == homeid) continue;
+
+    var delta = app.cities[i].timezone - app.cities[homeid].timezone;
+    var curdt = homedt.clone().add(delta, 'hours');
+    startTime.push(curdt.format(DATETIME_FORMAT));
+  }
+  return startTime;
+}
+
+function getHomeOffset() {
+  return app.cities[getHomeId()].timezone;
+}
+
+function getDuration() {
+  return (app.durationH * 60 + app.durationM);
+}
+
+var updateGgCalendarLink = function(eventName, places, startTime, homeOffset, duration) {
+    // startTime format
+    const UTC_FORMAT = "YYYYMMDDTHHmmss\\Z";
+
+    var link = 'https://calendar.google.com/calendar/render?action=TEMPLATE';
+    link += '&text=' + eventName;
+
+    // convert home's local time to UTC
+    var homeStartTime = moment(startTime[0], DATETIME_FORMAT, true).subtract(homeOffset, 'hours');
+    var homeEndTime   = homeStartTime.clone().add(duration, 'minutes');
+    var utcStartTime = homeStartTime.format(UTC_FORMAT);
+    console.log(homeStartTime);
+    console.log(utcStartTime);
+    var utcEndTime   = homeEndTime.format(UTC_FORMAT);
+    link += "&dates=" + utcStartTime + "/" + utcEndTime;
+    // description for the event
+    link += "&details=";
+    var n = places.length;
+    for(var i = 0; i < n; i++) {
+
+      link += "%0A%0A" + places[i] + "%0A";
+
+      var start = moment(startTime[i], DATETIME_FORMAT, true);
+      var end   = start.clone().add(duration, 'minutes');
+
+      link += start.format("HH:mm") + "%09" + moment.weekdaysShort()[start.weekday()] + ", " + moment.monthsShort()[start.month()] + ' ' + start.date() + ' ' + start.year();
+      link += "%0A";
+      link += end.format("HH:mm") + "%09" + moment.weekdaysShort()[end.weekday()] + ", " + moment.monthsShort()[end.month()] + ' ' + end.date() + ' ' + end.year();
+    }
+    link += "%0A%0A%0AScheduled with World Clock%0A";
+    link += "&location&trp=true&sf=true&output=xml";
+
+    // update <a>'s href attribute
+    // $('#gg-calendar').attr('href', link);
+    console.log(link);
+    return link;
+  }
+  var setTitleCurBar = function(){
+    var titleLeft = (parseInt(app.startH)<10 ? "0" + parseInt(app.startH): app.startH) +":"+(parseInt(app.startM)<10 ? "0" + parseInt(app.startM): app.startM);
+    var endH = parseInt(app.startH)+parseInt(app.durationH);
+    var endM = parseInt(app.startM) + parseInt(app.durationM);
+    if(endM >= 60) {
+      endH ++;
+      endM -=60;
+    }
+    var titleRight = (endH < 10 ? "0"+endH:endH)+":"+(endM < 10 ? "0"+endM:endM);
+    var titleDuration = titleLeft + " - " + titleRight;
+    $('.duration').attr('title', titleDuration);
+    var left = "<span>"+titleLeft+"</span>";
+    $('.barLeft').empty();
+    $('.barLeft').append(left);
+    var right = "<span>"+titleRight+"</span>";
+    $('.barRight').empty();
+    $('.barRight').append(right);
+  }
